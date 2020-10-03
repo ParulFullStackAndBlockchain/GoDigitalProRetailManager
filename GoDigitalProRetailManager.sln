@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GRMDataManager", "GRMDataMa
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "GRMData", "GRMData\GRMData.sqlproj", "{EDC13BE1-D2B4-442C-86FD-DBFF7FA4411B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GRMMVCUserInterface", "GRMMVCUserInterface\GRMMVCUserInterface.csproj", "{62713EDF-4DF1-40FB-A044-C5F07D3F8348}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{EDC13BE1-D2B4-442C-86FD-DBFF7FA4411B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDC13BE1-D2B4-442C-86FD-DBFF7FA4411B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EDC13BE1-D2B4-442C-86FD-DBFF7FA4411B}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{62713EDF-4DF1-40FB-A044-C5F07D3F8348}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62713EDF-4DF1-40FB-A044-C5F07D3F8348}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62713EDF-4DF1-40FB-A044-C5F07D3F8348}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62713EDF-4DF1-40FB-A044-C5F07D3F8348}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
