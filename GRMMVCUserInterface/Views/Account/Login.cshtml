@@ -30,11 +30,13 @@
                 <input type="submit" value="Login" class="btn btn-default" />
             </div>
         </div>
-
-        <div>
-            @ViewBag.ErrorMsg
-        </div>
     }
 
+    <!--Bootstrap alert to display any validation errors-->
+    <div class="alert-danger">
+        @ViewBag.ErrorMsg
+    </div>
+
 </div>
+
 

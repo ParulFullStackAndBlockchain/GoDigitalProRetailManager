@@ -27,7 +27,6 @@ namespace GRMMVCUserInterface.Controllers
         [HttpPost]
         public async Task<ActionResult> Login(string UserName, string Password)
         {
-            //if (ModelState.IsValid)
             try
             {
                 var result = await _aPIHelper.Authenticate(UserName, Password);
