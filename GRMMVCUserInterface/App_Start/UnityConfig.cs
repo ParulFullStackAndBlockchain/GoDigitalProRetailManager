@@ -1,4 +1,5 @@
-using GRMMVCUserInterface.Helpers;
+using GRMMVCUserInterface.Library.API;
+using GRMMVCUserInterface.Library.Models;
 using System.Web.Mvc;
 using Unity;
 using Unity.Mvc5;
@@ -16,7 +17,8 @@ namespace GRMMVCUserInterface
 
             // e.g. container.RegisterType<ITestService, TestService>();
 
-            container.RegisterSingleton<IAPIHelper, APIHelper>();
+            container.RegisterSingleton<ILoggedInUserModel, LoggedInUserModel>()
+                     .RegisterSingleton<IAPIHelper, APIHelper>();
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }

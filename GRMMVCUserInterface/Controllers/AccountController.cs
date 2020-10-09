@@ -1,4 +1,4 @@
-﻿using GRMMVCUserInterface.Helpers;
+﻿using GRMMVCUserInterface.Library.API;
 using GRMMVCUserInterface.Models;
 using System;
 using System.Collections.Generic;
@@ -30,6 +30,10 @@ namespace GRMMVCUserInterface.Controllers
             try
             {
                 var result = await _aPIHelper.Authenticate(UserName, Password);
+
+                //capture more information about the user
+                await _aPIHelper.GetLoggedInUserInfo(result.Access_Token);
+
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
