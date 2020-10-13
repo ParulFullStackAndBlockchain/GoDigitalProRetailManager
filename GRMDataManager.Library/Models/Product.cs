@@ -18,6 +18,7 @@ namespace GRMDataManager.Library.Models
         public string ProductName { get; set; }
         public string Descrption { get; set; }
         public decimal RetailPrice { get; set; }
+        public int QuantityInStock { get; set; }
         public System.DateTime CreateDate { get; set; }
         public System.DateTime LastModified { get; set; }
     }

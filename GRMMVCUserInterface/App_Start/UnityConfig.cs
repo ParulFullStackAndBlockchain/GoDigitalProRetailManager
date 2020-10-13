@@ -2,7 +2,9 @@ using GRMMVCUserInterface.Library.API;
 using GRMMVCUserInterface.Library.Models;
 using System.Web.Mvc;
 using Unity;
-using Unity.Mvc5;
+using Unity.AspNet.Mvc;
+using Unity.Lifetime;
+//using Unity.Mvc5;
 
 namespace GRMMVCUserInterface
 {
@@ -15,10 +17,12 @@ namespace GRMMVCUserInterface
             // register all your components with the container here
             // it is NOT necessary to register your controllers
 
-            // e.g. container.RegisterType<ITestService, TestService>();
+            // e.g. container.RegisterType<ITestService, TestService>();                
 
             container.RegisterSingleton<ILoggedInUserModel, LoggedInUserModel>()
                      .RegisterSingleton<IAPIHelper, APIHelper>();
+
+            container.RegisterType<IProductEndpoint, ProductEndpoint>(new PerRequestLifetimeManager());
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }

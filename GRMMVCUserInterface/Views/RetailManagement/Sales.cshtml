@@ -1,0 +1,80 @@
+﻿@model GRMMVCUserInterface.Models.ProductsViewModel
+
+@{
+    ViewBag.Title = "Sales Page";
+}
+
+<div style="font-family:Arial">
+    <h2>Sales Page</h2>
+
+    <table class="table" border="1">
+        <tr>
+            <th style="width: 33.33%">
+                <h3>Items</h3>
+            </th>
+            <th style="width: 33.33%">
+            </th>
+            <th style="width: 33.33%">
+                <h3>Cart </h3>
+            </th>
+        </tr>
+        <tr>
+            <td style="width: 33.33%">
+                @Html.ListBoxFor(m => m.SelectedProducts, Model.Products, new { size = 8 })
+            </td>
+            <td style="width: 33.33%">
+                <table class="table" border="1">
+                    <tr>
+                        <td>Quantity</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" id="txtQuantity" placeholder="0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button type="button" class="btn">Add To Cart</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button type="button" class="btn">Remove From Cart</button>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="width: 33.33%">
+                @*@Html.ListBoxFor(m => m.SelectedCities, Model.Cities, new { size = 4 })*@
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 33.33%">               
+            </td>
+            <td style="width: 33.33%">
+            </td>
+            <td style="width: 33.33%">
+                <table class="table" border="1">
+                    <tr>
+                        <td>SubTotal: </td>
+                        <td><input type="text" id="txtSubTotal" placeholder="$0.00" /></td>
+                    </tr>
+                    <tr>
+                        <td>Tax: </td>
+                        <td><input type="text" id="txtTax" placeholder="$0.00" /></td>
+                    </tr>
+                    <tr>
+                        <td>Total: </td>
+                        <td><input type="text" id="txtTotal" placeholder="$0.00" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="button" class="btn">Check Out</button>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+

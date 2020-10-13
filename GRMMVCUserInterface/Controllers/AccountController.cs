@@ -34,7 +34,7 @@ namespace GRMMVCUserInterface.Controllers
                 //capture more information about the user
                 await _aPIHelper.GetLoggedInUserInfo(result.Access_Token);
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Sales", "RetailManagement");
             }
             catch (Exception ex)
             {
