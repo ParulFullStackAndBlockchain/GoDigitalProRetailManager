@@ -4,77 +4,196 @@
     ViewBag.Title = "Sales Page";
 }
 
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#SelectedAvailableProducts').removeAttr('multiple');
+        $('#btnAddToCart').attr('disabled', true);
+        $('#btnRemoveFromCart').attr('disabled', true);
+
+        $("#SelectedAvailableProducts").change(function () {
+            $('#btnRemoveFromCart').attr('disabled', false);
+            var ProductId = $('#SelectedAvailableProducts').val();
+            $.ajax({
+                    url: '@Url.Action("GetSelectedProductDetails", "RetailManagement")',
+                    type: 'GET',
+                    data: { productId: ProductId },
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#ProductsAddedToCartString').val($('#ProductsAddedToCartString').val() + ProductId + ':' + data.name + ';');
+                        if (parseInt($('#Quantity').val()) <= data.quantity) {
+                            $('#btnAddToCart').attr('disabled', false);
+                        }
+                        else {
+                            $('#btnAddToCart').attr('disabled', true);
+                        }
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+            });
+        });
+
+        $("#SelectedProductsAddedToCart").change(function () {
+            $('#btnRemoveFromCart').attr('disabled', false);
+            var ProductId = $('#SelectedProductsAddedToCart').val();
+             $.ajax({
+                    url: '@Url.Action("GetSelectedProductDetails", "RetailManagement")',
+                    type: 'GET',
+                    dataType: 'json',
+                    //data: { productId: ProductId },
+                    data: { productId: '3' },
+                    success: function (data) {
+                        var partToBeRemoved = ProductId + ':' + data.name + ';';
+                        $('#ProductsAddedToCartString').val($('#ProductsAddedToCartString').val().replace(partToBeRemoved, ""));
+                    },
+                    error: function (jqXHR) {
+                        alert('error');
+                        alert(jqXHR.responseText);
+                    }
+            });
+        });
+
+        $('#Quantity').change(function (event) {
+            var ProductId = $('#SelectedAvailableProducts').val();
+            $.ajax({
+                    url: '@Url.Action("GetSelectedProductDetails", "RetailManagement")',
+                    type: 'GET',
+                    data: { productId: ProductId },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (parseInt($('#Quantity').val()) <= data.quantity) {
+                            $('#btnAddToCart').attr('disabled', false);
+                            $('#btnRemoveFromCart').attr('disabled', false);
+                        }
+                        else {
+                            $('#btnAddToCart').attr('disabled', true);
+                            $('#btnRemoveFromCart').attr('disabled', true);
+                        }
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+            });
+        });
+
+        @*$("#btnAddToCart").click(function () {
+            var ProductId = $('#SelectedAvailableProducts').val();
+            $.ajax({
+                    url: '@Url.Action("GetSelectedProductDetails", "RetailManagement")',
+                    type: 'GET',
+                    data: { productId: ProductId },
+                    dataType: 'json',
+                success: function (data) {
+                    var subTotal = parseFloat($('#SubTotal_Value').val()) + (data.price * parseInt($('#Quantity').val()));
+                    alert(subTotal);
+                    $('#SubTotal_Value').val(subTotal);
+                    alert($('#SubTotal_Value').val(subTotal));
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+            });
+        });*@
+    });
+</script>
+
 <div style="font-family:Arial">
     <h2>Sales Page</h2>
+    @using (Html.BeginForm())
+    {
+        <div>
+            @Html.EditorFor(m => m.ProductsAddedToCartString, Model.ProductsAddedToCartString, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+        <table class="table" border="1">
+            <tr>
+                <th style="width: 33.33%">
+                    <h3>Items</h3>
+                </th>
+                <th style="width: 33.33%">
+                </th>
+                <th style="width: 33.33%">
+                    <h3>Cart </h3>
+                </th>
+            </tr>
+            <tr>
+                <td style="width: 33.33%">
+                    @Html.ListBoxFor(m => m.SelectedAvailableProducts, Model.AvailableProducts, new { size = 8 })
+                </td>
+                <td style="width: 33.33%">
+                    <table class="table" border="1">
+                        <tr>
+                            <td> @Html.LabelFor(model => model.Quantity, htmlAttributes: new { @class = "control-label col-md-2" })</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-10">
+                                    @Html.EditorFor(m => m.Quantity, Model.Quantity.ToString(), new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Quantity, "", new { @class = "text-danger" })
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="submit" id="btnAddToCart" value="AddToCart" class="btn">Add To Cart</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="submit" id="btnRemoveFromCart" value="RemoveFromCart" class="btn">Remove From Cart</button>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="width: 33.33%">
+                    @Html.ListBoxFor(m => m.SelectedProductsAddedToCart, Model.ProductsAddedToCart, new { size = 8 })
+                </td>                
+            </tr>
+            <tr>
+                <td style="width: 33.33%">
+                </td>
+                <td style="width: 33.33%">
+                </td>
+                <td style="width: 33.33%">
+                    <table class="table" border="1">
+                        <tr>
+                            <td>@Html.LabelFor(model => model.SubTotal, htmlAttributes: new { @class = "control-label col-md-2" })</td>
+                            <td>
+                                <div class="col-md-10">
+                                    @Html.EditorFor(m => m.SubTotal.Value, Model.SubTotal.ToString(), new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.SubTotal, "", new { @class = "text-danger" })
+                                </div>
+                            </td>
 
-    <table class="table" border="1">
-        <tr>
-            <th style="width: 33.33%">
-                <h3>Items</h3>
-            </th>
-            <th style="width: 33.33%">
-            </th>
-            <th style="width: 33.33%">
-                <h3>Cart </h3>
-            </th>
-        </tr>
-        <tr>
-            <td style="width: 33.33%">
-                @Html.ListBoxFor(m => m.SelectedProducts, Model.Products, new { size = 8 })
-            </td>
-            <td style="width: 33.33%">
-                <table class="table" border="1">
-                    <tr>
-                        <td>Quantity</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="text" id="txtQuantity" placeholder="0" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <button type="button" class="btn">Add To Cart</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <button type="button" class="btn">Remove From Cart</button>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td style="width: 33.33%">
-                @*@Html.ListBoxFor(m => m.SelectedCities, Model.Cities, new { size = 4 })*@
-            </td>
-        </tr>
-        <tr>
-            <td style="width: 33.33%">               
-            </td>
-            <td style="width: 33.33%">
-            </td>
-            <td style="width: 33.33%">
-                <table class="table" border="1">
-                    <tr>
-                        <td>SubTotal: </td>
-                        <td><input type="text" id="txtSubTotal" placeholder="$0.00" /></td>
-                    </tr>
-                    <tr>
-                        <td>Tax: </td>
-                        <td><input type="text" id="txtTax" placeholder="$0.00" /></td>
-                    </tr>
-                    <tr>
-                        <td>Total: </td>
-                        <td><input type="text" id="txtTotal" placeholder="$0.00" /></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <button type="button" class="btn">Check Out</button>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</div>
+                        </tr>
+                        <tr>
+                            <td>@Html.LabelFor(model => model.Tax, htmlAttributes: new { @class = "control-label col-md-2" })</td>
+                            <td>
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Tax.Value, Model.Tax.ToString(), new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Tax, "", new { @class = "text-danger" })
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>@Html.LabelFor(model => model.Total, htmlAttributes: new { @class = "control-label col-md-2" })</td>
+                            <td>
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Total.Value, Model.Total.ToString(), new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Total, "", new { @class = "text-danger" })
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button type="button" class="btn">Check Out</button>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    }
+    </div>
 
