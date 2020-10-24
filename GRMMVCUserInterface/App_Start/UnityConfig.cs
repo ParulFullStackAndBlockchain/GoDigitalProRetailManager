@@ -1,4 +1,5 @@
 using GRMMVCUserInterface.Library.API;
+using GRMMVCUserInterface.Library.Helpers;
 using GRMMVCUserInterface.Library.Models;
 using System.Web.Mvc;
 using Unity;
@@ -20,6 +21,7 @@ namespace GRMMVCUserInterface
             // e.g. container.RegisterType<ITestService, TestService>();                
 
             container.RegisterSingleton<ILoggedInUserModel, LoggedInUserModel>()
+                     .RegisterSingleton<IConfigHelper, ConfigHelper>()
                      .RegisterSingleton<IAPIHelper, APIHelper>();
 
             container.RegisterType<IProductEndpoint, ProductEndpoint>(new PerRequestLifetimeManager());

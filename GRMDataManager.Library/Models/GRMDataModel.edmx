@@ -32,6 +32,7 @@
           <Property Name="QuantityInStock" Type="int" Nullable="false" />
           <Property Name="CreateDate" Type="datetime2" Precision="7" Nullable="false" />
           <Property Name="LastModified" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="IsTaxable" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale">
           <Key>
@@ -104,6 +105,7 @@
           <Property Name="QuantityInStock" Type="Int32" Nullable="false" />
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="7" />
           <Property Name="LastModified" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="IsTaxable" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale">
           <Key>
@@ -172,6 +174,7 @@
           <EntitySetMapping Name="Products">
             <EntityTypeMapping TypeName="Models.Product">
               <MappingFragment StoreEntitySet="Product">
+                <ScalarProperty Name="IsTaxable" ColumnName="IsTaxable" />
                 <ScalarProperty Name="QuantityInStock" ColumnName="QuantityInStock" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="ProductName" ColumnName="ProductName" />

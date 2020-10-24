@@ -1,4 +1,5 @@
 ﻿using GRMMVCUserInterface.Library.API;
+using GRMMVCUserInterface.Library.Helpers;
 using GRMMVCUserInterface.Library.Models;
 using GRMMVCUserInterface.Models;
 using Microsoft.Ajax.Utilities;
@@ -16,11 +17,13 @@ namespace GRMMVCUserInterface.Controllers
     public class RetailManagementController : Controller
     {
         private IProductEndpoint _productEndpoint;
+        private IConfigHelper _configHelper;
         //private List<ProductModel> _productList;
 
-        public RetailManagementController(IProductEndpoint productEndpoint)
+        public RetailManagementController(IProductEndpoint productEndpoint, IConfigHelper configHelper)
         {
             _productEndpoint = productEndpoint;
+            _configHelper = configHelper;
         }
 
         public async Task<List<ProductModel>> GetAllProducts()
@@ -66,11 +69,10 @@ namespace GRMMVCUserInterface.Controllers
             StringBuilder productsAddedToCartString = new StringBuilder(model.ProductsAddedToCartString);       
             List<SelectListItem> listAvailableItems = new List<SelectListItem>();
             List<SelectListItem> listCartItems = new List<SelectListItem>();
-            decimal? subTotal = 0;
-            if (model.SubTotal != null)
-            {
-                subTotal = model.SubTotal;
-            }            
+            decimal subTotal = model.SubTotal;
+            decimal taxRate = _configHelper.GetTaxRate() / 100;
+            decimal tax = model.Tax;
+            decimal total = model.Total;
 
             foreach (ProductModel product in productList)
             {
@@ -89,7 +91,11 @@ namespace GRMMVCUserInterface.Controllers
                     ProductModel selectedProduct = productList.FirstOrDefault(p => p.Id == Convert.ToInt32(selectedAvailableProduct));
                     selectedProduct.QuantityInStock -= model.Quantity;
                     //productsAddedToCartString.Append($"{selectedAvailableProduct}:{selectedProduct.ProductName};");
-                    //subTotal = Decimal.Add(subTotal.Value, (selectedProduct.RetailPrice * model.Quantity));
+                    subTotal += selectedProduct.RetailPrice * model.Quantity;
+                    if (selectedProduct.IsTaxable)
+                    {
+                        tax += selectedProduct.RetailPrice * model.Quantity * taxRate;
+                    }
                 }
             }
 
@@ -100,9 +106,15 @@ namespace GRMMVCUserInterface.Controllers
                     ProductModel selectedProduct = productList.FirstOrDefault(p => p.Id == Convert.ToInt32(selectedProductToBeRemoved));
                     selectedProduct.QuantityInStock += model.Quantity;
                     //productsAddedToCartString.Replace($"{selectedProductToBeRemoved}:{selectedProduct.ProductName};", string.Empty);
-                    //subTotal = Decimal.Subtract(subTotal.Value, (selectedProduct.RetailPrice * model.Quantity));
+                    subTotal -= selectedProduct.RetailPrice * model.Quantity;
+                    if (selectedProduct.IsTaxable)
+                    {
+                        tax -= selectedProduct.RetailPrice * model.Quantity * taxRate;
+                    }
                 }
             }
+
+            total = subTotal + tax;
 
             string[] productsAddedToCartStringArray = productsAddedToCartString.ToString().Split(';');
             foreach (string productsAddedToCartStringItem in productsAddedToCartStringArray)
@@ -125,8 +137,8 @@ namespace GRMMVCUserInterface.Controllers
                 ProductsAddedToCartString = productsAddedToCartString.ToString(),
                 Quantity = 1,
                 SubTotal = subTotal,
-                Tax = 0,
-                Total = 0
+                Tax = tax,
+                Total = total
             };
 
             return View(productsViewModel);

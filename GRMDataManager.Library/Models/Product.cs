@@ -21,5 +21,6 @@ namespace GRMDataManager.Library.Models
         public int QuantityInStock { get; set; }
         public System.DateTime CreateDate { get; set; }
         public System.DateTime LastModified { get; set; }
+        public bool IsTaxable { get; set; }
     }
 }

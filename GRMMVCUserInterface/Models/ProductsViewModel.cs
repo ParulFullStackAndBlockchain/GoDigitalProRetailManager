@@ -18,10 +18,10 @@ namespace GRMMVCUserInterface.Models
         public int Quantity { get; set; }
         public string ProductsAddedToCartString { get; set; }
         [DataType(DataType.Currency)]
-        public decimal? SubTotal { get; set; }
+        public decimal SubTotal { get; set; }
         [DataType(DataType.Currency)]
-        public decimal? Tax { get; set; }
+        public decimal Tax { get; set; }
         [DataType(DataType.Currency)]
-        public decimal? Total { get; set; }
+        public decimal Total { get; set; }
     }
 }
