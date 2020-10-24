@@ -66,6 +66,54 @@
           <Property Name="EmailAddress" Type="nvarchar" MaxLength="256" Nullable="false" />
           <Property Name="CeatedDate" Type="datetime2" Precision="7" Nullable="false" />
         </EntityType>
+        <Association Name="FK_Inventory_ToProduct">
+          <End Role="Product" Type="Self.Product" Multiplicity="1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Product">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="ProductId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sale_ToUser">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Sale" Type="Self.Sale" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sale">
+              <PropertyRef Name="CashierId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SaleDetail_ToProduct">
+          <End Role="Product" Type="Self.Product" Multiplicity="1" />
+          <End Role="SaleDetail" Type="Self.SaleDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Product">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SaleDetail">
+              <PropertyRef Name="ProductId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SaleDetail_ToSale">
+          <End Role="Sale" Type="Self.Sale" Multiplicity="1" />
+          <End Role="SaleDetail" Type="Self.SaleDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sale">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SaleDetail">
+              <PropertyRef Name="SaleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="ModelsStoreContainer">
           <EntitySet Name="__RefactorLog" EntityType="Self.__RefactorLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Inventory" EntityType="Self.Inventory" Schema="dbo" store:Type="Tables" />
@@ -73,6 +121,22 @@
           <EntitySet Name="Sale" EntityType="Self.Sale" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SaleDetail" EntityType="Self.SaleDetail" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Inventory_ToProduct" Association="Self.FK_Inventory_ToProduct">
+            <End Role="Product" EntitySet="Product" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sale_ToUser" Association="Self.FK_Sale_ToUser">
+            <End Role="User" EntitySet="User" />
+            <End Role="Sale" EntitySet="Sale" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SaleDetail_ToProduct" Association="Self.FK_SaleDetail_ToProduct">
+            <End Role="Product" EntitySet="Product" />
+            <End Role="SaleDetail" EntitySet="SaleDetail" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SaleDetail_ToSale" Association="Self.FK_SaleDetail_ToSale">
+            <End Role="Sale" EntitySet="Sale" />
+            <End Role="SaleDetail" EntitySet="SaleDetail" />
+          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -93,6 +157,7 @@
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="PurchasePrice" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
           <Property Name="PurchaseDate" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="Product" Relationship="Models.FK_Inventory_ToProduct" FromRole="Inventory" ToRole="Product" />
         </EntityType>
         <EntityType Name="Product">
           <Key>
@@ -106,6 +171,8 @@
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="7" />
           <Property Name="LastModified" Type="DateTime" Nullable="false" Precision="7" />
           <Property Name="IsTaxable" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Inventories" Relationship="Models.FK_Inventory_ToProduct" FromRole="Product" ToRole="Inventory" />
+          <NavigationProperty Name="SaleDetails" Relationship="Models.FK_SaleDetail_ToProduct" FromRole="Product" ToRole="SaleDetail" />
         </EntityType>
         <EntityType Name="Sale">
           <Key>
@@ -117,6 +184,8 @@
           <Property Name="SubTotal" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
           <Property Name="Tax" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
           <Property Name="Total" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Models.FK_Sale_ToUser" FromRole="Sale" ToRole="User" />
+          <NavigationProperty Name="SaleDetails" Relationship="Models.FK_SaleDetail_ToSale" FromRole="Sale" ToRole="SaleDetail" />
         </EntityType>
         <EntityType Name="SaleDetail">
           <Key>
@@ -128,6 +197,8 @@
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="PurchasePrice" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
           <Property Name="Tax" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
+          <NavigationProperty Name="Product" Relationship="Models.FK_SaleDetail_ToProduct" FromRole="SaleDetail" ToRole="Product" />
+          <NavigationProperty Name="Sale" Relationship="Models.FK_SaleDetail_ToSale" FromRole="SaleDetail" ToRole="Sale" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -138,6 +209,7 @@
           <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="EmailAddress" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="CeatedDate" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="Sales" Relationship="Models.FK_Sale_ToUser" FromRole="User" ToRole="Sale" />
         </EntityType>
         <EntityContainer Name="GRMContext" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="C__RefactorLog" EntityType="Self.C__RefactorLog" />
@@ -146,7 +218,71 @@
           <EntitySet Name="Sales" EntityType="Self.Sale" />
           <EntitySet Name="SaleDetails" EntityType="Self.SaleDetail" />
           <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_Inventory_ToProduct" Association="Models.FK_Inventory_ToProduct">
+            <End Role="Product" EntitySet="Products" />
+            <End Role="Inventory" EntitySet="Inventories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SaleDetail_ToProduct" Association="Models.FK_SaleDetail_ToProduct">
+            <End Role="Product" EntitySet="Products" />
+            <End Role="SaleDetail" EntitySet="SaleDetails" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Sale_ToUser" Association="Models.FK_Sale_ToUser">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Sale" EntitySet="Sales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SaleDetail_ToSale" Association="Models.FK_SaleDetail_ToSale">
+            <End Role="Sale" EntitySet="Sales" />
+            <End Role="SaleDetail" EntitySet="SaleDetails" />
+          </AssociationSet>
         </EntityContainer>
+        <Association Name="FK_Inventory_ToProduct">
+          <End Type="Models.Product" Role="Product" Multiplicity="1" />
+          <End Type="Models.Inventory" Role="Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Product">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="ProductId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SaleDetail_ToProduct">
+          <End Type="Models.Product" Role="Product" Multiplicity="1" />
+          <End Type="Models.SaleDetail" Role="SaleDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Product">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SaleDetail">
+              <PropertyRef Name="ProductId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Sale_ToUser">
+          <End Type="Models.User" Role="User" Multiplicity="1" />
+          <End Type="Models.Sale" Role="Sale" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Sale">
+              <PropertyRef Name="CashierId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SaleDetail_ToSale">
+          <End Type="Models.Sale" Role="Sale" Multiplicity="1" />
+          <End Type="Models.SaleDetail" Role="SaleDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Sale">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="SaleDetail">
+              <PropertyRef Name="SaleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->

@@ -11,6 +11,10 @@
         <EntityTypeShape EntityType="Models.Sale" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Models.SaleDetail" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Models.User" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
+        <AssociationConnector Association="Models.FK_Inventory_ToProduct" />
+        <AssociationConnector Association="Models.FK_SaleDetail_ToProduct" />
+        <AssociationConnector Association="Models.FK_Sale_ToUser" />
+        <AssociationConnector Association="Models.FK_SaleDetail_ToSale" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

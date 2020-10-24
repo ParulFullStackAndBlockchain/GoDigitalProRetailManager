@@ -20,5 +20,8 @@ namespace GRMDataManager.Library.Models
         public int Quantity { get; set; }
         public decimal PurchasePrice { get; set; }
         public decimal Tax { get; set; }
+    
+        public virtual Product Product { get; set; }
+        public virtual Sale Sale { get; set; }
     }
 }
