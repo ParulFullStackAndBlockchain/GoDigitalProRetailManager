@@ -11,7 +11,7 @@ namespace GRMDataManager.Library.Models
 {
     using System;
     using System.Collections.Generic;
-    
+
     public partial class Product
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,7 +20,7 @@ namespace GRMDataManager.Library.Models
             this.Inventories = new HashSet<Inventory>();
             this.SaleDetails = new HashSet<SaleDetail>();
         }
-    
+
         public int Id { get; set; }
         public string ProductName { get; set; }
         public string Descrption { get; set; }
@@ -29,7 +29,7 @@ namespace GRMDataManager.Library.Models
         public System.DateTime CreateDate { get; set; }
         public System.DateTime LastModified { get; set; }
         public bool IsTaxable { get; set; }
-    
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Inventory> Inventories { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

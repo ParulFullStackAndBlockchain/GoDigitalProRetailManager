@@ -11,7 +11,8 @@ namespace GRMDataManager.Library.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public partial class SaleDetail
     {
         public int Id { get; set; }
@@ -20,8 +21,10 @@ namespace GRMDataManager.Library.Models
         public int Quantity { get; set; }
         public decimal PurchasePrice { get; set; }
         public decimal Tax { get; set; }
-    
+
+        [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
+        [ForeignKey("SaleId")]
         public virtual Sale Sale { get; set; }
     }
 }

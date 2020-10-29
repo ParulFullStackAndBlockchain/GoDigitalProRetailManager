@@ -12,47 +12,15 @@
         $('#btnAddToCart').attr('disabled', true);
         $('#btnRemoveFromCart').attr('disabled', true);
 
-        $("#SelectedAvailableProducts").change(function () {
-            $('#btnRemoveFromCart').attr('disabled', false);
-            var ProductId = $('#SelectedAvailableProducts').val();
-            $.ajax({
-                    url: '@Url.Action("GetSelectedProductDetails", "RetailManagement")',
-                    type: 'GET',
-                    data: { productId: ProductId },
-                    dataType: 'json',
-                    success: function (data) {
-                        $('#ProductsAddedToCartString').val($('#ProductsAddedToCartString').val() + ProductId + ':' + data.name + ';');
-                        if (parseInt($('#Quantity').val()) <= data.quantity) {
-                            $('#btnAddToCart').attr('disabled', false);
-                        }
-                        else {
-                            $('#btnAddToCart').attr('disabled', true);
-                        }
-                    },
-                    error: function (jqXHR) {
-                        alert(jqXHR.responseText);
-                    }
-            });
-        });
-
+        if (parseInt($('#Total').val()) > 0) {
+            $('#btnCheckOut').attr('disabled', false);
+        }
+        else {
+            $('#btnCheckOut').attr('disabled', true);
+        }
+       
         $("#SelectedProductsAddedToCart").change(function () {
-            $('#btnRemoveFromCart').attr('disabled', false);
-            var ProductId = $('#SelectedProductsAddedToCart').val();
-             $.ajax({
-                    url: '@Url.Action("GetSelectedProductDetails", "RetailManagement")',
-                    type: 'GET',
-                    dataType: 'json',
-                    //data: { productId: ProductId },
-                    data: { productId: '3' },
-                    success: function (data) {
-                        var partToBeRemoved = ProductId + ':' + data.name + ';';
-                        $('#ProductsAddedToCartString').val($('#ProductsAddedToCartString').val().replace(partToBeRemoved, ""));
-                    },
-                    error: function (jqXHR) {
-                        alert('error');
-                        alert(jqXHR.responseText);
-                    }
-            });
+            $('#btnRemoveFromCart').attr('disabled', false);   
         });
 
         $('#Quantity').change(function (event) {
@@ -65,11 +33,9 @@
                     success: function (data) {
                         if (parseInt($('#Quantity').val()) <= data.quantity) {
                             $('#btnAddToCart').attr('disabled', false);
-                            $('#btnRemoveFromCart').attr('disabled', false);
                         }
                         else {
                             $('#btnAddToCart').attr('disabled', true);
-                            $('#btnRemoveFromCart').attr('disabled', true);
                         }
                     },
                     error: function (jqXHR) {
@@ -129,7 +95,7 @@
                 </td>
                 <td style="width: 33.33%">
                     @Html.ListBoxFor(m => m.SelectedProductsAddedToCart, Model.ProductsAddedToCart, new { size = 8 })
-                </td>                
+                </td>
             </tr>
             <tr>
                 <td style="width: 33.33%">
@@ -168,7 +134,7 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <button type="button" class="btn">Check Out</button>
+                                <button id="btnCheckOut" value="CheckOut" type="submit" class="btn">Check Out</button>
                             </td>
                         </tr>
                     </table>
@@ -176,5 +142,8 @@
             </tr>
         </table>
     }
-    </div>
+    @*<table class="table" border="1">
+
+        </table>*@
+</div>
 

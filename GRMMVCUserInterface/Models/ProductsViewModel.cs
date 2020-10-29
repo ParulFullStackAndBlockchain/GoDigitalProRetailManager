@@ -16,6 +16,7 @@ namespace GRMMVCUserInterface.Models
         public List<string> SelectedProductsAddedToCart { get; set; }
         public List<SelectListItem> ProductsAddedToCart { get; set; }
         public int Quantity { get; set; }
+        [HiddenInput(DisplayValue = false)]
         public string ProductsAddedToCartString { get; set; }
         [DataType(DataType.Currency)]
         public decimal SubTotal { get; set; }

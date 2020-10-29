@@ -7,14 +7,25 @@ using System.Threading.Tasks;
 
 namespace GRMDataManager.Library.DataAccess
 {
-    public class UserData
+    public class UserData :IDisposable
     {
-        private GRMContext db = new GRMContext();
+        private GRMContext _db; 
+
+        public UserData()
+        {
+            _db = new GRMContext();
+        }
 
         public User GetUserById (string Id)
         {
-            User user = db.Users.Find(Id);
+            User user = _db.Users.Find(Id);
             return user;
+        }
+
+        public void Dispose()
+        {
+            _db.Dispose();
+            _db = null;
         }
     }
 }

@@ -3,6 +3,7 @@ using GRMMVCUserInterface.Library.Helpers;
 using GRMMVCUserInterface.Library.Models;
 using GRMMVCUserInterface.Models;
 using Microsoft.Ajax.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +19,14 @@ namespace GRMMVCUserInterface.Controllers
     {
         private IProductEndpoint _productEndpoint;
         private IConfigHelper _configHelper;
+        private ISaleEndPoint _saleEndPoint;
         //private List<ProductModel> _productList;
 
-        public RetailManagementController(IProductEndpoint productEndpoint, IConfigHelper configHelper)
+        public RetailManagementController(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint)
         {
             _productEndpoint = productEndpoint;
             _configHelper = configHelper;
+            _saleEndPoint = saleEndPoint;
         }
 
         public async Task<List<ProductModel>> GetAllProducts()
@@ -32,12 +35,11 @@ namespace GRMMVCUserInterface.Controllers
             return await _productEndpoint.GetAll();
         }
 
-        public async Task<ActionResult> Sales()
-        {
+        [HttpGet]
+        public async Task<ActionResult> Sales(string serializedModel)
+        {           
             var productList = await GetAllProducts();
-
-            List<SelectListItem> listSelectListItems = new List<SelectListItem>();       
-
+            List<SelectListItem> listSelectListItems = new List<SelectListItem>();
             foreach (ProductModel product in productList)
             {
                 SelectListItem selectList = new SelectListItem()
@@ -48,16 +50,37 @@ namespace GRMMVCUserInterface.Controllers
                 listSelectListItems.Add(selectList);
             }
 
-            ProductsViewModel productsViewModel = new ProductsViewModel()
+            ProductsViewModel productsViewModel; 
+            if (null == serializedModel)
             {
-                AvailableProducts = listSelectListItems,
-                ProductsAddedToCart = new List<SelectListItem>(),
-                ProductsAddedToCartString = "",
-                Quantity = 1,
-                SubTotal = 0,
-                Tax = 0,
-                Total = 0
-            };
+                productsViewModel = new ProductsViewModel()
+                {
+                    AvailableProducts = listSelectListItems,
+                    ProductsAddedToCart = new List<SelectListItem>(),
+                    ProductsAddedToCartString = "",
+                    Quantity = 1,
+                    SubTotal = 0,
+                    Tax = 0,
+                    Total = 0
+                };
+            }
+            else
+            {
+                productsViewModel = JsonConvert.DeserializeObject<ProductsViewModel>(serializedModel);
+                if (null == productsViewModel)
+                {
+                    productsViewModel = new ProductsViewModel()
+                    {
+                        AvailableProducts = listSelectListItems,
+                        ProductsAddedToCart = new List<SelectListItem>(),
+                        ProductsAddedToCartString = "",
+                        Quantity = 1,
+                        SubTotal = 0,
+                        Tax = 0,
+                        Total = 0
+                    };
+                }
+            }
 
             return View(productsViewModel);
         }
@@ -66,13 +89,14 @@ namespace GRMMVCUserInterface.Controllers
         public async Task<ActionResult> Sales(ProductsViewModel model)
         {
             var productList = await GetAllProducts();
-            StringBuilder productsAddedToCartString = new StringBuilder(model.ProductsAddedToCartString);       
+            StringBuilder productsAddedToCartString = new StringBuilder(model.ProductsAddedToCartString);
             List<SelectListItem> listAvailableItems = new List<SelectListItem>();
             List<SelectListItem> listCartItems = new List<SelectListItem>();
             decimal subTotal = model.SubTotal;
             decimal taxRate = _configHelper.GetTaxRate() / 100;
             decimal tax = model.Tax;
             decimal total = model.Total;
+            List<SaleDetailModel> saleDetails = new List<SaleDetailModel>(); ;
 
             foreach (ProductModel product in productList)
             {
@@ -87,10 +111,11 @@ namespace GRMMVCUserInterface.Controllers
             if (model.SelectedAvailableProducts != null)
             {
                 foreach (var selectedAvailableProduct in model.SelectedAvailableProducts)
-                {                   
-                    ProductModel selectedProduct = productList.FirstOrDefault(p => p.Id == Convert.ToInt32(selectedAvailableProduct));
+                {
+                    int Id = Convert.ToInt32(selectedAvailableProduct);
+                    ProductModel selectedProduct = productList.FirstOrDefault(p => p.Id == Id);
                     selectedProduct.QuantityInStock -= model.Quantity;
-                    //productsAddedToCartString.Append($"{selectedAvailableProduct}:{selectedProduct.ProductName};");
+                    productsAddedToCartString.Append($"{selectedAvailableProduct}:{selectedProduct.ProductName}:{model.Quantity};");
                     subTotal += selectedProduct.RetailPrice * model.Quantity;
                     if (selectedProduct.IsTaxable)
                     {
@@ -102,10 +127,10 @@ namespace GRMMVCUserInterface.Controllers
             if (model.SelectedProductsAddedToCart != null)
             {
                 foreach (var selectedProductToBeRemoved in model.SelectedProductsAddedToCart)
-                {                                      
+                {
                     ProductModel selectedProduct = productList.FirstOrDefault(p => p.Id == Convert.ToInt32(selectedProductToBeRemoved));
                     selectedProduct.QuantityInStock += model.Quantity;
-                    //productsAddedToCartString.Replace($"{selectedProductToBeRemoved}:{selectedProduct.ProductName};", string.Empty);
+                    productsAddedToCartString.Replace($"{selectedProductToBeRemoved}:{selectedProduct.ProductName}:{model.Quantity};", string.Empty);
                     subTotal -= selectedProduct.RetailPrice * model.Quantity;
                     if (selectedProduct.IsTaxable)
                     {
@@ -121,12 +146,21 @@ namespace GRMMVCUserInterface.Controllers
             {
                 if (!productsAddedToCartStringItem.IsNullOrWhiteSpace())
                 {
+                    string[] itemInfo = productsAddedToCartStringItem.Split(':');
+                    int cartItemId = Convert.ToInt32(itemInfo[0]);
+                    int cartItemQuantity = Convert.ToInt32(itemInfo[2]);
+
                     SelectListItem cartList = new SelectListItem()
                     {
-                        Text = productsAddedToCartStringItem.Split(':')[1],
-                        Value = productsAddedToCartStringItem.Split(':')[0]
+                        Text = itemInfo[1],
+                        Value = itemInfo[0]
                     };
                     listCartItems.Add(cartList);
+
+                    SaleDetailModel saleDetailModel = new SaleDetailModel();
+                    saleDetailModel.ProductId = cartItemId;
+                    saleDetailModel.Quantity = cartItemQuantity;
+                    saleDetails.Add(saleDetailModel);
                 }
             }
 
@@ -135,13 +169,20 @@ namespace GRMMVCUserInterface.Controllers
                 AvailableProducts = listAvailableItems,
                 ProductsAddedToCart = listCartItems,
                 ProductsAddedToCartString = productsAddedToCartString.ToString(),
-                Quantity = 1,
+                Quantity = model.Quantity,
                 SubTotal = subTotal,
                 Tax = tax,
                 Total = total
             };
 
-            return View(productsViewModel);
+            if (null == model.SelectedAvailableProducts && null == model.SelectedProductsAddedToCart)
+            {
+                SaleModel sale = new SaleModel();
+                sale.SaleDetails = saleDetails;
+                await _saleEndPoint.PostSale(sale);
+            }
+
+            return RedirectToAction("Sales", new { serializedModel = JsonConvert.SerializeObject(productsViewModel) });
         }
 
         public async Task<JsonResult> GetSelectedProductDetails(string productId)
@@ -150,6 +191,5 @@ namespace GRMMVCUserInterface.Controllers
             ProductModel product = productList.First(p => p.Id.Equals(Convert.ToInt32(productId)));
             return Json(new {name = product.ProductName, price = product.RetailPrice, quantity = product.QuantityInStock}, JsonRequestBehavior.AllowGet);
         }
-      
     }
 }
