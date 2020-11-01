@@ -180,6 +180,18 @@ namespace GRMMVCUserInterface.Controllers
                 SaleModel sale = new SaleModel();
                 sale.SaleDetails = saleDetails;
                 await _saleEndPoint.PostSale(sale);
+
+                ProductsViewModel resetProductsViewModel = new ProductsViewModel()
+                {
+                    AvailableProducts = listAvailableItems,
+                    ProductsAddedToCart = new List<SelectListItem>(),
+                    ProductsAddedToCartString = "",
+                    Quantity = 1,
+                    SubTotal = 0,
+                    Tax = 0,
+                    Total = 0
+                };
+                return RedirectToAction("Sales", new { serializedModel = JsonConvert.SerializeObject(resetProductsViewModel) });
             }
 
             return RedirectToAction("Sales", new { serializedModel = JsonConvert.SerializeObject(productsViewModel) });

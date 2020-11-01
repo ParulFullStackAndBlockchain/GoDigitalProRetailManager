@@ -21,24 +21,8 @@ namespace GRMDataManager.Library.Models
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            // configures one-to-many relationship
-            modelBuilder.Entity<Sale>()
-                .HasRequired<User>(s => s.User)
-                .WithMany(g => g.Sales)
-            .HasForeignKey<string>(s => s.CashierId);
-
-            modelBuilder.Entity<SaleDetail>()
-                .HasRequired<Sale>(s => s.Sale)
-                .WithMany(g => g.SaleDetails)
-            .HasForeignKey<int>(s => s.SaleId);
-
-            modelBuilder.Entity<SaleDetail>()
-                .HasRequired<Product>(s => s.Product)
-                .WithMany(g => g.SaleDetails)
-                .HasForeignKey<int>(s => s.ProductId);
-
-            //throw new UnintentionalCodeFirstException();
+        {            
+            throw new UnintentionalCodeFirstException();
         }
     
         public virtual DbSet<C__RefactorLog> C__RefactorLog { get; set; }
