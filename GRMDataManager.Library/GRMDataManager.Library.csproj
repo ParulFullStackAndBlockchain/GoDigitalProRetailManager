@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigHelper.cs" />
+    <Compile Include="DataAccess\InventoryData.cs" />
     <Compile Include="DataAccess\ProductData.cs" />
     <Compile Include="DataAccess\SaleData.cs" />
     <Compile Include="DataAccess\UserData.cs" />
@@ -109,7 +110,6 @@
     <Compile Include="Models\Inventory.cs">
       <DependentUpon>GRMDataModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\ModelExtentions.cs" />
     <Compile Include="Models\Product.cs">
       <DependentUpon>GRMDataModel.tt</DependentUpon>
     </Compile>
@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="Models\SaleDetailModel.cs" />
     <Compile Include="Models\SaleModel.cs" />
+    <Compile Include="Models\SaleReportModel.cs" />
     <Compile Include="Models\User.cs">
       <DependentUpon>GRMDataModel.tt</DependentUpon>
     </Compile>

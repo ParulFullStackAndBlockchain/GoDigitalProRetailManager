@@ -19,7 +19,7 @@ namespace GRMDataManager.Library.DataAccess
 
         public List<Product> GetProducts()
         {
-            var products = _db.Products.ToList();          
+            var products = _db.Products.ToList();           
             return products;
         }
 

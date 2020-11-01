@@ -23,9 +23,7 @@ namespace GRMDataManager.Library.DataAccess
         public void SaveSale(SaleModel saleInfo, string cashierId)
         {          
                 //TODO: Make this SOLID/DRY/Better
-
                 //Start filling in the sale detail models we will save to the database
-
                 //Fill in the available information
                 List<SaleDetail> details = new List<SaleDetail>();
                 ProductData productData = new ProductData();
@@ -67,17 +65,11 @@ namespace GRMDataManager.Library.DataAccess
                 sale.Total = sale.SubTotal + sale.Tax;
                 User user = _db.Users.FirstOrDefault(x => x.Id == cashierId);
                 sale.User = user;
-                _db.Users.Attach(user);
                 user.Sales.Add(sale);
 
                 //Save the sale model
-
-                //_db.Sales.Add(sale);
-                //_db.Entry(sale.User).State = EntityState.Modified;
+                _db.Entry(sale.User).State = EntityState.Modified;
                 _db.SaveChanges();
-
-                //Get the id from the sale mode
-                // Timeline 1:32 to 1:37
 
                 //Finish filling in the sale detail models and Save the sale detail model
                 foreach (var item in details)
@@ -85,20 +77,35 @@ namespace GRMDataManager.Library.DataAccess
                     item.SaleId = sale.Id;
 
                     Product product = _db.Products.FirstOrDefault(x => x.Id == item.ProductId);
-                    item.Product = product;
-                    _db.Products.Attach(product);
+                    product.QuantityInStock -= item.Quantity;
+                    item.Product = product;                    
                     product.SaleDetails.Add(item);
+                    _db.Entry(item.Product).State = EntityState.Modified;
 
                     item.Sale = sale;
-                    _db.Sales.Attach(sale);
                     sale.SaleDetails.Add(item);
-
-                    //_db.SaleDetails.Add(item);
-                    //_db.Entry(item.Product).State = EntityState.Modified;
-                    //_db.Entry(item.Sale).State = EntityState.Modified;
+                    _db.Entry(item.Sale).State = EntityState.Modified;
 
                     _db.SaveChanges();
-                }          
+                }
+        }
+
+        public List<SaleReportModel> GetSaleReport()
+        {
+            List<SaleReportModel> saleReport = (from s in _db.Sales
+                                          join u in _db.Users on s.CashierId equals u.Id
+                                          select new SaleReportModel
+                                          {
+                                              SaleDate = s.SaleDate,
+                                              SubTotal = s.SubTotal,
+                                              Tax = s.Tax,
+                                              Total = s.Total,
+                                              FirstName = u.FirstName,
+                                              LastName = u.LastName,
+                                              EmailAddress = u.EmailAddress
+                                          }).ToList();
+
+            return saleReport;                            
         }
 
         public void Dispose()
