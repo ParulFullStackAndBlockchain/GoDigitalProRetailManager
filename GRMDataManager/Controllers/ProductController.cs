@@ -9,20 +9,13 @@ using System.Web.Http;
 
 namespace GRMDataManager.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Cashier")]
     public class ProductController : ApiController
     {
         public List<Product> Get()
         {
-            try
-            { 
-                ProductData data = new ProductData();
-                return data.GetProducts();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            ProductData data = new ProductData();
+            return data.GetProducts();
         }
     }
 }

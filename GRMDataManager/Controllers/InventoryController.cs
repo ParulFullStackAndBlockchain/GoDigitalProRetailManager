@@ -12,12 +12,14 @@ namespace GRMDataManager.Controllers
     [Authorize]
     public class InventoryController : ApiController
     {
+        [Authorize(Roles = "Admin,Manager")]
         public List<Inventory> GetInventoryData()
         {
             InventoryData data = new InventoryData();
             return data.GetInventory();
         }
 
+        [Authorize(Roles = "Admin")]
         public void Post(Inventory item)
         {
             InventoryData data = new InventoryData();
