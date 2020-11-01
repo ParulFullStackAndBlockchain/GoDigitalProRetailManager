@@ -1,4 +1,5 @@
 ﻿using GRMMVCUserInterface.Library.API;
+using GRMMVCUserInterface.Library.Models;
 using GRMMVCUserInterface.Models;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,20 @@ namespace GRMMVCUserInterface.Controllers
                 await _aPIHelper.GetLoggedInUserInfo(result.Access_Token);
 
                 return RedirectToAction("Sales", "RetailManagement");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMsg = ex.Message;
+                return View();
+            }
+        }
+
+        public ActionResult LogOff()
+        {
+            try
+            {
+                _aPIHelper.LogOff();
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {

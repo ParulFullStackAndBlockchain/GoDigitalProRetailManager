@@ -89,5 +89,17 @@ namespace GRMMVCUserInterface.Library.API
                 }
             }
         }
+
+        public void LogOff()
+        {
+            _loggedInUser.Token = "";
+            _loggedInUser.Id = "";
+            _loggedInUser.FirstName = "";
+            _loggedInUser.LastName = "";
+            _loggedInUser.EmailAddress = "";
+            _loggedInUser.CeatedDate = DateTime.MinValue;
+
+            _apiClient.DefaultRequestHeaders.Clear();
+        }
     }
 }
