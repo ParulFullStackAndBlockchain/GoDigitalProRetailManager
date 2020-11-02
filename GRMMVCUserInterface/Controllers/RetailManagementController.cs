@@ -20,19 +20,25 @@ namespace GRMMVCUserInterface.Controllers
         private IProductEndpoint _productEndpoint;
         private IConfigHelper _configHelper;
         private ISaleEndPoint _saleEndPoint;
-        //private List<ProductModel> _productList;
+        private IUserEndPoint _userEndPoint;
 
-        public RetailManagementController(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint)
+        public RetailManagementController(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint
+            ,IUserEndPoint userEndPoint)
         {
             _productEndpoint = productEndpoint;
             _configHelper = configHelper;
             _saleEndPoint = saleEndPoint;
+            _userEndPoint = userEndPoint;
         }
 
         public async Task<List<ProductModel>> GetAllProducts()
         {
-            //_productList = await _productEndpoint.GetAll();
             return await _productEndpoint.GetAll();
+        }
+
+        public async Task<List<UserModel>> GetAllUsers()
+        {
+            return await _userEndPoint.GetAll();
         }
 
         [HttpGet]
@@ -215,6 +221,44 @@ namespace GRMMVCUserInterface.Controllers
             var productList = await GetAllProducts();
             ProductModel product = productList.First(p => p.Id.Equals(Convert.ToInt32(productId)));
             return Json(new {name = product.ProductName, price = product.RetailPrice, quantity = product.QuantityInStock}, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> UserDisplay()
+        {
+            try
+            {
+                var userList = await GetAllUsers();
+                List<SelectListItem> listSelectListItems = new List<SelectListItem>();
+                foreach (UserModel user in userList)
+                {
+                    string rolesList = string.Join(",", user.Roles.Select(x => x.Value));
+
+                    SelectListItem selectList = new SelectListItem()
+                    {
+                        Text = $"{user.Email} : {Environment.NewLine} {rolesList}",
+                        Value = user.Id.ToString()
+                    };
+                    listSelectListItems.Add(selectList);
+                }
+
+                DisplayUserModel displayUserModel = new DisplayUserModel()
+                {
+                    Users = listSelectListItems
+                };
+
+                return View(displayUserModel);
+            }
+            catch (Exception ex)
+            {
+                //TODO : Log the exception. 
+                if (ex.Message.Equals("Unauthorized"))
+                {
+                    ViewBag.ErrorTitle = $"{ex.Message}";
+                    ViewBag.ErrorMessage = "You do not have permission to interact with the Users form";
+                }
+                return View("Error");
+            }
         }
     }
 }

@@ -1,0 +1,22 @@
+﻿@model GRMMVCUserInterface.Models.DisplayUserModel
+
+@{
+    ViewBag.Title = "UserDisplay";
+}
+
+<div style="font-family:Arial">
+    <h2>User Administration</h2>
+    <table class="table" border="1">
+        <tr>
+            <th>
+                <h3>Users</h3>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                @Html.ListBoxFor(m => m.SelectedUsers, Model.Users, new { size = 8, style = "width: 100%" })
+            </td>
+        </tr>
+    </table>
+</div>
+

@@ -25,6 +25,7 @@ namespace GRMMVCUserInterface
                      .RegisterSingleton<IAPIHelper, APIHelper>();
 
             container.RegisterType<IProductEndpoint, ProductEndpoint>(new PerRequestLifetimeManager())
+                     .RegisterType<IUserEndPoint, UserEndPoint>(new PerRequestLifetimeManager())
                      .RegisterType<ISaleEndPoint, SaleEndPoint>(new PerRequestLifetimeManager());
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
