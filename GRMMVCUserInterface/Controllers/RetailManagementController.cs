@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace GRMMVCUserInterface.Controllers
 {
@@ -39,6 +40,23 @@ namespace GRMMVCUserInterface.Controllers
         public async Task<List<UserModel>> GetAllUsers()
         {
             return await _userEndPoint.GetAll();
+        }
+
+        public async Task<List<SelectListItem>> GetAllRoles()
+        {
+            var roles = await _userEndPoint.GetAllRoles();
+
+            List<SelectListItem> listRoles = new List<SelectListItem>();
+            foreach (var role in roles)
+            {
+                SelectListItem selectList = new SelectListItem()
+                {
+                    Text = role.Value,
+                    Value = role.Key
+                };
+                listRoles.Add(selectList); 
+            }
+            return listRoles;
         }
 
         [HttpGet]
@@ -224,28 +242,57 @@ namespace GRMMVCUserInterface.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> UserDisplay()
+        public async Task<ActionResult> UserDisplay(string serializedModel)
         {
             try
             {
+
                 var userList = await GetAllUsers();
-                List<SelectListItem> listSelectListItems = new List<SelectListItem>();
-                foreach (UserModel user in userList)
-                {
-                    string rolesList = string.Join(",", user.Roles.Select(x => x.Value));
+                var rolesList = await GetAllRoles();
 
-                    SelectListItem selectList = new SelectListItem()
+                List<SelectListItem> listUsersWithRoles = new List<SelectListItem>();
+                DisplayUserModel displayUserModel;
+
+                if (null == serializedModel)
+                {
+                    foreach (UserModel user in userList)
+                    {                        
+                        string userRolesList = string.Join(",", user.Roles.Select(x => x.Value));
+                        SelectListItem selectList = new SelectListItem()
+                        {
+                            Text = $"{user.Email} : {Environment.NewLine} {userRolesList}",
+                            Value = user.Id.ToString()
+                        };
+                        listUsersWithRoles.Add(selectList);
+                    }
+
+                    displayUserModel = new DisplayUserModel()
                     {
-                        Text = $"{user.Email} : {Environment.NewLine} {rolesList}",
-                        Value = user.Id.ToString()
+                        Users = listUsersWithRoles
                     };
-                    listSelectListItems.Add(selectList);
                 }
-
-                DisplayUserModel displayUserModel = new DisplayUserModel()
+                else
                 {
-                    Users = listSelectListItems
-                };
+                    displayUserModel = JsonConvert.DeserializeObject<DisplayUserModel>(serializedModel);
+                    if (null == displayUserModel)
+                    {
+                        foreach (UserModel user in userList)
+                        {                           
+                            string userRolesList = string.Join(",", user.Roles.Select(x => x.Value));
+                            SelectListItem selectList = new SelectListItem()
+                            {
+                                Text = $"{user.Email} : {Environment.NewLine} {userRolesList}",
+                                Value = user.Id.ToString()
+                            };
+                            listUsersWithRoles.Add(selectList);
+                        }
+
+                        displayUserModel = new DisplayUserModel()
+                        {
+                            Users = listUsersWithRoles
+                        };
+                    }
+                }
 
                 return View(displayUserModel);
             }
@@ -260,5 +307,95 @@ namespace GRMMVCUserInterface.Controllers
                 return View("Error");
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult> UserDisplay(DisplayUserModel model)
+        {
+            try
+            {
+                var userList = await GetAllUsers();
+                var rolesList = await GetAllRoles();
+
+                List<SelectListItem> listUsersWithRoles = new List<SelectListItem>();
+                List<SelectListItem> listExistingRoles = new List<SelectListItem>();
+                List<SelectListItem> listOtherRoles = new List<SelectListItem>();
+                string emailId = null;
+                DisplayUserModel displayUserModel;
+
+                foreach (UserModel user in userList)
+                {
+                    if (user.Id == model.SelectedUsers.First())
+                    {
+                        listExistingRoles = (from r in user.Roles
+                                             select new SelectListItem
+                                             {
+                                                 Text = r.Value,
+                                                 Value = r.Key
+                                             }).ToList();
+
+
+                        foreach (var role in rolesList)
+                        {
+                            if (!(listExistingRoles.Any(x => x.Value == role.Value)))
+                            {
+                                listOtherRoles.Add(role);
+                            }
+                        }
+
+                        emailId = user.Email;
+                    }
+
+                    string userRolesList = string.Join(",", user.Roles.Select(x => x.Value));
+                    SelectListItem selectList = new SelectListItem()
+                    {
+                        Text = $"{user.Email} : {Environment.NewLine} {userRolesList}",
+                        Value = user.Id.ToString()
+                    };
+                    listUsersWithRoles.Add(selectList);
+                }
+
+                if (null != model.SelectedExistingRoles
+                        && null == model.SelectedOtherRoles)
+                {
+                    SelectListItem existingRoleToBeRemoved = 
+                        listExistingRoles.FirstOrDefault(x => x.Value == model.SelectedExistingRoles.First());
+                    await _userEndPoint.RemoveUserFromRole(model.SelectedUsers.First(), existingRoleToBeRemoved.Text);
+                    listExistingRoles.Remove(existingRoleToBeRemoved);
+                    listOtherRoles.Add(existingRoleToBeRemoved);
+                }
+
+                if (null != model.SelectedOtherRoles
+                        && null == model.SelectedExistingRoles)
+                {
+                    SelectListItem otherRoleToBeAdded =
+                        listOtherRoles.FirstOrDefault(x => x.Value == model.SelectedOtherRoles.First());
+                    await _userEndPoint.AddUserToRole(model.SelectedUsers.First(), otherRoleToBeAdded.Text);
+                    listOtherRoles.Remove(otherRoleToBeAdded);
+                    listExistingRoles.Add(otherRoleToBeAdded);
+                }
+
+                displayUserModel = new DisplayUserModel()
+                {
+                    Users = listUsersWithRoles,
+                    SelectedUsers = model.SelectedUsers,
+                    EmailId = emailId,
+                    ExistingRoles = listExistingRoles,
+                    OtherRoles = listOtherRoles
+                };
+
+                return RedirectToAction("UserDisplay", new { serializedModel = JsonConvert.SerializeObject(displayUserModel)});
+            }
+            catch (Exception ex)
+            {
+                //TODO : Log the exception. 
+                if (ex.Message.Equals("Unauthorized"))
+                {
+                    ViewBag.ErrorTitle = $"{ex.Message}";
+                    ViewBag.ErrorMessage = "You do not have permission to interact with the Users form";
+                }
+                return View("Error");
+            }
+        }
+
     }
 }

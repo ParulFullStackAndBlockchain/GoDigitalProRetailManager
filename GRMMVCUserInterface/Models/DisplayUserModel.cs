@@ -10,5 +10,11 @@ namespace GRMMVCUserInterface.Models
     {
         public List<string> SelectedUsers { get; set; }
         public List<SelectListItem> Users { get; set; }
+        public string EmailId { get; set; }
+        public List<string> SelectedExistingRoles { get; set; }
+        public List<SelectListItem> ExistingRoles { get; set; }
+
+        public List<string> SelectedOtherRoles { get; set; }
+        public List<SelectListItem> OtherRoles { get; set; }
     }
 }

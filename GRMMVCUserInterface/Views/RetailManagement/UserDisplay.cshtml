@@ -6,17 +6,54 @@
 
 <div style="font-family:Arial">
     <h2>User Administration</h2>
-    <table class="table" border="1">
-        <tr>
-            <th>
-                <h3>Users</h3>
-            </th>
-        </tr>
-        <tr>
-            <td>
-                @Html.ListBoxFor(m => m.SelectedUsers, Model.Users, new { size = 8, style = "width: 100%" })
-            </td>
-        </tr>
-    </table>
+    @using (Html.BeginForm())
+    {
+        <table class="table" border="1">
+            <tr>
+                <th style="width: 50%">
+                    <h3>Users</h3>
+                </th>
+                <th style="width: 50%">
+                    <button type="submit" id="btnManageSelectedUserRoles" value="ManageSelectedUserRoles" class="btn">ManageSelectedUserRoles</button>
+                </th>
+            </tr>
+            <tr>
+                <td style="width: 50%">
+                    @Html.ListBoxFor(m => m.SelectedUsers, Model.Users, new { size = 8, style = "width: 100%" })
+                </td>
+                <td style="width: 50%">
+                    @if (Model.SelectedUsers != null)
+                    {
+                        <table class="table" border="1">
+                            <tr>
+                                <td colspan="2">
+                                    @Html.EditorFor(m => m.EmailId, Model.EmailId, new { style = "auto"})
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Current Roles</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    @Html.ListBoxFor(m => m.SelectedExistingRoles, Model.ExistingRoles, new { size = 8, style = "width: 100%" })
+                                </td>
+                                <td>
+                                    <button type="submit" id="btnRemove" value="Remove" class="btn">Remove</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    @Html.ListBoxFor(m => m.SelectedOtherRoles, Model.OtherRoles, new { size = 8, style = "width: 100%" })
+                                </td>
+                                <td>
+                                    <button type="submit" id="btnRole" value="Role" class="btn">Add Role</button>
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                </td>
+            </tr>
+        </table>
+    }
 </div>
 
